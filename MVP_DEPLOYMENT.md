@@ -74,13 +74,15 @@ MVP 的目标是验证一条完整的链路：
 
 GitHub Secrets 是 GitHub 提供的"加密保管箱"，存进去的值代码看不到明文，只能在 workflow 运行时引用，不会泄露。
 
-| 阶段 | Secret 名 | 用途 | 何时配 |
-|---|---|---|---|
-| A | `FEISHU_WEBHOOK_URL` | 飞书推送地址 | 阶段A 部署时 |
-| B | `AI_ANALYSIS_ENABLED` | AI 分析开关，值填 `true` | 阶段B |
-| B | `AI_MODEL` | AI 模型名，值填 `openai/<模型名>`（智谱走 OpenAI 兼容格式，所以要加 `openai/` 前缀） | 阶段B |
-| B | `AI_API_KEY` | 智谱 API Key | 阶段B |
-| B | `AI_API_BASE` | 智谱 API 地址，值填 `https://open.bigmodel.cn/api/paas/v4` | 阶段B |
+| 阶段 | Secret 名 | 用途 | 值 | 何时配 |
+|---|---|---|---|---|
+| A | `FEISHU_WEBHOOK_URL` | 飞书推送地址 | 飞书机器人 webhook | 阶段A 部署时 |
+| B | `AI_ANALYSIS_ENABLED` | AI 分析开关 | `true` | 阶段B |
+| B | `AI_MODEL` | AI 模型名 | `openai/glm-5.2`（⚠️ 必须带 `openai/` 前缀，因用了自定义端点） | 阶段B |
+| B | `AI_API_KEY` | 智谱 API Key | 你的智谱 Key | 阶段B |
+| B | `AI_API_BASE` | 智谱 API 地址 | `https://open.bigmodel.cn/api/coding/paas/v4`（⚠️ Coding Plan 用此端点，非 `/paas/v4`） | 阶段B |
+
+> **端点说明**：智谱普通用户用 `https://open.bigmodel.cn/api/paas/v4`；**Coding Plan（编码计划）订阅用户必须用 `/api/coding/paas/v4`**，用错会报"余额不足或无可用资源包"。本次实测 Coding Plan Key 在普通端点报余额不足，在 coding 端点正常。
 
 > **红线**：Secret 的值（webhook URL、API Key 等）**绝不写入仓库任何文件**，不进 git commit。如果写进文件并提交，相当于公开泄露，必须立即吊销重置。
 
@@ -106,6 +108,8 @@ GitHub Secrets 是 GitHub 提供的"加密保管箱"，存进去的值代码看�
 
 ## 6. 阶段B 简述（阶段A 全部通过后才做）
 
+> **状态：本地端到端验证已通过**（2026-07-30）。GLM-5.2 调用成功，AI 日报质量达标（含制造业视角、售前建议），飞书推送成功。剩 GitHub Secrets 配置 + Actions 触发。
+
 阶段B 是把抓到的新闻交给智谱 GLM 大模型，生成一份中文的、有分析的日报。步骤大致是：
 
 1. **先本地验证 GLM API 能通**（重要前置）：
@@ -127,11 +131,11 @@ GitHub Secrets 是 GitHub 提供的"加密保管箱"，存进去的值代码看�
   - GitHub Actions 的免费时长有个机制：连续 7 天不点一次 `Check In`（签到）workflow，会自动把 `Get Hot News`（抓取）workflow 关掉，抓取会静默停止。
   - 代码依据：`.github/workflows/crawler.yml` 第 62–94 行。
   - 缓解：**每 ≤6 天去仓库 Actions 页手动点一次 `Check In` workflow 的 Run workflow**，建议在手机日历设一个每 6 天提醒一次的循环提醒，别忘。
-- **R2：每小时运行**。
+- **R2：每小时运行（阶段B 已开 AI，此风险已激活⚠️）**。
   - 当前定时任务设置是 `33 * * * *`，即每小时的第 33 分钟跑一次。
-  - 阶段A 不烧钱（AI 是关的，只是抓新闻）。
-  - 阶段B 开 AI 后，每小时会调一次智谱 GLM，**一天调 24 次**，会持续消耗 GLM 额度。
-  - 缓解：阶段B 通过后，把 cron 改成 `10 0 * * *`（每天 UTC 00:10，即北京时间 08:10），一天只跑一次。
+  - 阶段B 已开启 AI 分析，每小时会调一次智谱 GLM，**一天调 24 次**，会持续消耗 Coding Plan 额度。
+  - **强烈建议**：阶段B 通过后，把 cron 改成 `10 0 * * *`（每天 UTC 00:10，即北京时间 08:10），一天只跑一次。改法：编辑 `.github/workflows/crawler.yml` 第 38 行。
+  - 注意：Coding Plan 额度通常有上限，24 次/天的 daily 分析可能较快耗尽。
 - **R3：关键词命中量未知**。
   - 首次运行时，可能某个关键词组一条都抓不到（命中 0 条）。
   - 缓解：看 Actions 日志里各组的实际命中数，按需要扩充关键词。

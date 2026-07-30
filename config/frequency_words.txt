@@ -4,6 +4,7 @@
 #
 # MVP 四组关键词:AI模型 / AI开发工具 / 制造业数字化 / 政策与产业
 # 语法:/正则/ => 别名;@数字 限制该组条数;[组别名] 给整组命名
+# 关键词基于 2026-07-30 真实热榜数据校准,兼顾专业性与命中率
 #
 # ═══════════════════════════════════════════════════════════════
 
@@ -25,17 +26,17 @@
 [WORD_GROUPS]
 
 [AI模型]
-/\bOpenAI\b|\bChatGPT\b|\bClaude\b|\bAnthropic\b|\bGemini\b|\bDeepSeek\b|\bGLM\b|智谱|通义千问|\bQwen\b|\bKimi\b|\bMiniMax\b|大模型/ => AI模型动态
+/\bOpenAI\b|\bChatGPT\b|\bClaude\b|\bAnthropic\b|\bGemini\b|\bDeepSeek\b|\bGLM\b|智谱|通义千问|\bQwen\b|\bKimi\b|\bMiniMax\b|大模型|人工智能|\bAI\b|豆包|文心|飞书/ => AI模型动态
 @8
 
 [AI开发工具]
-/\bCodex\b|Claude Code|\bCursor\b|\bWindsurf\b|GitHub Copilot|\bMCP\b|AI Agent|智能体|多智能体|\bRAG\b/ => AI开发工具
+/\bCodex\b|Claude Code|\bCursor\b|\bWindsurf\b|GitHub Copilot|\bMCP\b|AI Agent|智能体|多智能体|\bRAG\b|微软|\bAzure\b|云服务|算力|\bSaaS\b/ => AI开发工具
 @8
 
 [制造业数字化]
-/智能制造|工业软件|数字化工厂|\bMES\b|\bWMS\b|\bAPS\b|\bPMC\b|\bQMS\b|\bSPC\b|\bIoT\b|生产计划|供应链数字化/ => 制造业数字化
+/智能制造|工业软件|数字化工厂|\bMES\b|\bWMS\b|\bAPS\b|\bPMC\b|\bQMS\b|\bSPC\b|\bIoT\b|生产计划|供应链|新能源|电池|智驾|芯片|半导体|光模块|存储芯片|宁德时代|车企/ => 制造业数字化
 @8
 
 [政策与产业]
-/工信部|工业和信息化|人工智能政策|智能制造政策|工业互联网|新型工业化|浙江制造|温州制造/ => 政策与产业
+/工信部|工业和信息化|人工智能政策|智能制造政策|工业互联网|新型工业化|浙江制造|温州制造|政治局|经济形势|财金|运营商|产业政策|发改委/ => 政策与产业
 @5
